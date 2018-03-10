@@ -66,41 +66,26 @@ public class DrawingPaneControlController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        //Initial thickness set to 1
-        thicknessInput.setText("1");
-
-
-        //Watch changes on the thickness input
-        thicknessInput.textProperty().addListener((v, oldValue, newValue)->{
-            //Remove all but numbers from the field
-            if (!newValue.matches("[0-9]+")) {
-                thicknessInput.setText(newValue.replaceAll("[^0-9]", ""));
-            }
-            //Propagate the input value to the Drawing Pane component
-            if(!newValue.equals("")){
-                drawingPaneController.setThickness(Integer.valueOf(thicknessInput.getText()));
-            }
-        });
-
-        //Initial color to Black
         colorPicker.setValue(Color.BLACK);
-        //Bind color picker value to the Drawing Pane component
+        thicknessInput.setText("1");
         drawingPaneController.colorProperty().bind(colorPicker.valueProperty());
-
-        //Handle clear button click
-        clearButton.setOnAction(e->{
+        thicknessInput.textProperty().addListener((v, o, n)-> {
+            drawingPaneController.setThickness(Integer.valueOf(n));
+        });
+        clearButton.setOnAction(event -> {
             drawingPaneController.clearPane();
         });
 
-        //Handle Save button click
-        saveButton.setOnAction(e->{
+        saveButton.setOnAction(event -> {
             this.saveDrawingInfos();
         });
 
-        //Handle Load button click
-        loadButton.setOnAction(e->{
+        loadButton.setOnAction(event -> {
             this.loadDrawingInfos();
         });
+
+        //Initial thickness set to 1
+
     }
 
     /**

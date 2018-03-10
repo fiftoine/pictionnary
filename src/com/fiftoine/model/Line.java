@@ -3,7 +3,6 @@ package com.fiftoine.model;
 
 import javafx.scene.paint.Color;
 
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -31,7 +30,7 @@ public class Line implements Serializable {
     /**
      * Color of the line
      */
-    private transient Color color;
+    private transient  Color color;
 
     /**
      * List of vertices of the line
@@ -86,6 +85,10 @@ public class Line implements Serializable {
         this.vertices.add(vi);
     }
 
+    public void addVertice(double x, double y){
+        this.addVertice(new Vertice(x, y));
+    }
+
     /**
      * Returns the first vertice of the line
      * @return the first vertice of the line
@@ -112,34 +115,29 @@ public class Line implements Serializable {
                 '}';
     }
 
-    /**
-     * Read serialized information about the object from an object input stream
-     * @param ois object input stream to read line from
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
-    private void readObject(final ObjectInputStream ois) throws IOException, ClassNotFoundException{
+
+    private void readObject(final ObjectInputStream ois) throws IOException,
+            ClassNotFoundException {
+
         this.thickness = ois.readInt();
-        this.vertices = (ArrayList)ois.readObject();
         double red = ois.readDouble();
         double green = ois.readDouble();
         double blue = ois.readDouble();
         double opacity = ois.readDouble();
         this.color = new Color(red, green, blue, opacity);
+        this.vertices = (ArrayList) ois.readObject();
+
     }
 
-    /**
-     * Write the line to a Object output stream
-     * @param oos Object output stream to write the line on
-     * @throws IOException
-     */
-    private void writeObject(final ObjectOutputStream oos) throws IOException{
+    private void writeObject(final ObjectOutputStream oos) throws IOException {
+
         oos.writeInt(this.thickness);
-        oos.writeObject(this.vertices);
         oos.writeDouble(this.color.getRed());
         oos.writeDouble(this.color.getGreen());
         oos.writeDouble(this.color.getBlue());
         oos.writeDouble(this.color.getOpacity());
-
+        oos.writeObject(this.vertices);
     }
+
+
 }

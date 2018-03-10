@@ -68,35 +68,39 @@ public class DrawingPaneController implements IDrawing, Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        this.graphicsContext = this.canvas.getGraphicsContext2D();
 
-        this.colorProperty.addListener((v,o,n) -> graphicsContext.setStroke(n) );
-
-        this.thicknessProperty.addListener((v,o,n) -> graphicsContext.setLineWidth(n));
-
-        //Catch beginning of lines
-        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, e->{
-            //Begin a new path
-            graphicsContext.beginPath();
-            //Move the context to the mouse position
-            graphicsContext.moveTo(e.getX(), e.getY());
-            //Create a new line with wanted color and thickness
-            this.currentLine = new Line(((int) this.graphicsContext.getLineWidth()), (Color)this.graphicsContext.getStroke());
-            //Add the first vertice of the line as the position of the mouse
-            this.currentLine.addVertice(new Vertice(e.getX(),e.getY()));
-            //Add the line to the drawing infos
-            this.drawingInfos.add(this.currentLine);
-            System.out.println("Added line "+this.currentLine);
+        graphicsContext = canvas.getGraphicsContext2D();
+        thicknessProperty.addListener((v,o,n)->{
+            graphicsContext.setLineWidth(n);
+        });
+        colorProperty.addListener((v, o, n)->{
+            graphicsContext.setStroke(n);
         });
 
-        //Catch movements on line
-        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED,e->{
-            //Draw a line between the previous context position and the mouse position
-            graphicsContext.lineTo(e.getX(), e.getY());
-            graphicsContext.stroke();
-            //Add the current mouse position as a vertice of the line
-            this.currentLine.addVertice(new Vertice(e.getX(),e.getY()));
+        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent e) -> {
+
+            if(updatable){
+                graphicsContext.beginPath();
+                graphicsContext.moveTo(e.getX(), e.getY());
+                this.currentLine = new Line(this.getThickness(), this.getColor());
+                this.currentLine.addVertice(e.getX(), e.getY());
+                this.drawingInfos.add(currentLine);
+            }
         });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e) -> {
+
+            if (updatable){
+                graphicsContext.lineTo(e.getX(), e.getY());
+                graphicsContext.stroke();
+                this.currentLine.addVertice(e.getX(), e.getY());
+            }
+
+
+        });
+
+
+
 
     }
 
@@ -120,6 +124,7 @@ public class DrawingPaneController implements IDrawing, Initializable {
         this.graphicsContext.clearRect(0,0,canvas.getWidth(), canvas.getHeight());
         //Reset the drawing infos
         this.drawingInfos = new DrawingInfos();
+        this.updatable = true;
     }
 
     /**
@@ -145,6 +150,7 @@ public class DrawingPaneController implements IDrawing, Initializable {
         this.clearPane();
         this.drawingInfos = dInfos;
         this.draw();
+        this.updatable = false;
     }
 
 
@@ -157,27 +163,18 @@ public class DrawingPaneController implements IDrawing, Initializable {
      *
      */
     private void draw(){
-        System.out.println("Drawing...");
-        System.out.println(this.drawingInfos);
 
-        //Loop all lines
-        for(Line lineInfo : this.drawingInfos.getLines()){
-            //Set line color
-            graphicsContext.setStroke(lineInfo.getColor());
-            //Set line thickness
-            graphicsContext.setLineWidth(lineInfo.getThickness());
-            //Start drawing
+        for (Line line: drawingInfos.getLines()) {
+
+            graphicsContext.setStroke(line.getColor());
+            graphicsContext.setLineWidth(line.getThickness());
             graphicsContext.beginPath();
-            //Move to the first vertice of the line
-            graphicsContext.moveTo(lineInfo.getFirstVertice().getX(), lineInfo.getFirstVertice().getY());
-            //For each following vertices
-            for(Vertice verticeInfo : lineInfo.getAllButFirstVertice()){
-                //Draw a line between the previous point to the vertice point
-                graphicsContext.lineTo(verticeInfo.getX(), verticeInfo.getY());
+            graphicsContext.moveTo(line.getFirstVertice().getX(), line.getFirstVertice().getY());
+            for(Vertice vertice: line.getAllButFirstVertice()){
+                graphicsContext.lineTo(vertice.getX(), vertice.getY());
                 graphicsContext.stroke();
             }
         }
-        System.out.println("Done drawing!");
     }
 
 
